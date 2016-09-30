@@ -1,6 +1,318 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>TR API Samples GitHub Tool</title>
+	<meta name="author" content="Gurpreet Bal">	
+	<meta name="description" content="Platform Servcies Tool for creating Git Repo">	
+	<meta name="copyright" content="Thomson Reuters">	
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous" />
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<style>
+	.interview::after {
+		color: #959595;
+		content: "Interview";
+		font-size: 12px;
+		font-weight: 700;
+		left: 15px;
+		letter-spacing: 1px;
+		position: absolute;
+		text-transform: uppercase;
+		top: 15px;
+	}
+
+	.create::after {
+		color: #959595;
+		content: "GitHub";
+		font-size: 12px;
+		font-weight: 700;
+		left: 15px;
+		letter-spacing: 1px;
+		position: absolute;
+		text-transform: uppercase;
+		top: 15px;
+	}
+
+	.log::after {
+		color: #959595;
+		content: "log";
+		font-size: 12px;
+		font-weight: 700;
+		left: 15px;
+		letter-spacing: 1px;
+		position: absolute;
+		text-transform: uppercase;
+		top: 15px;
+	}
+
+	.bs-bx {
+		border-radius: 4px;
+		border-color: #aaa;
+		border-style: solid;
+		border-width: 1px;
+		margin: 0 -15px 15px;
+		padding: 45px 15px 15px;
+		position: relative;
+	}
+
+	#log {
+		font-family: Lucida Console;
+		height: 200px;
+		overflow-y: auto;
+		background-color: #EEEEEE;
+	}
+	
+	.RED	{
+		color: #FFFFFF;
+		background-color: #FF0000;
+	}
+
+	.WARN	{
+		color: #000000;
+		background-color: #FFFF00;
+	}
+	
+	.BLUE	{
+		color: #0000FF;
+	}
+	
+	.BOLD	{
+		font-weight: bold;
+	}
+	
+</style>
+
+</head>
 <body>
-<h1>This is heading</h1>
-<div>And a body</div>
+
+<div class="container">
+	<h1>Platform Services GitHub Tool</h1>
+	<p>This is a tool to create API Samples repository for platform services group. The samples have to follow a naming convention which is enforced by this tool. 
+	Follow the interview process to generate the repository name. After checking that a repository with similar name does not exist, create the repository.
+	An OAuth token is required to create repsitory in GitHub. Please contact a member of platform services to get one.
+	</p>
+	
+	<div class="bs-bx interview">
+	<form class="form-horizontal">
+	  <div class="form-group">
+		<label for="id1" class="col-sm-3 control-label">API</label>
+		<div class="col-sm-7">
+		  <input type="text" class="form-control" id="id1" placeholder="EMA DSS etc">
+		</div>
+	  </div>
+	  
+	  <div class="form-group">
+		<label for="id2" class="col-sm-3 control-label">Language</label>
+		<div class="col-sm-7">
+		  <input type="text" class="form-control" id="id2" placeholder="Java">
+		</div>
+	  </div>
+	  
+	  <div class="form-group">
+		<div class="col-sm-offset-3 col-sm-7">
+		  <button class="btn btn-primary" onclick="generateName(); return false;">Generate Name</button>
+		</div>
+	  </div>
+
+	  <div class="form-group">
+		<label for="repoName" class="col-sm-3 control-label">Generated Repo Name</label>
+		<div class="col-sm-7">
+		  <input type="text" class="form-control" id="repoName" placeholder="Repository Name" value="PlatformServicesTestRepo">
+		</div>
+	  </div>
+	</form>
+	</div>
+
+	<div class="bs-bx create">
+		<form class="form-horizontal">
+		  <div class="form-group">
+			<label for="authToken" class="col-sm-3 control-label">Authorization Token</label>
+			<div class="col-sm-7">
+			  <input type="text" class="form-control" id="authToken" placeholder="OAuth token">
+			</div>
+		  </div>
+		  
+		  <div class="form-group">
+			<div class="col-sm-offset-3 col-sm-2">
+			  <button class="btn btn-primary" onclick="listRepos(); return false;">List Repos</button>
+			</div>
+			<div class="col-sm-2">
+			  <button class="btn btn-warning" onclick="createRepo(); return false;">Create Repo</button>
+			</div>
+			<div class="col-sm-3">
+			  <button class="btn btn-danger" onclick="deleteRepo(); return false;">Delete Repo</button>
+			</div>
+		  </div>
+
+		</form>
+	</div>
+
+	<div class="bs-bx log">
+		<div id="log"></div>
+	</div>
+	
+</div>
+
+<script type="text/javascript">
+	var $msg;
+	var REPO_ORG_NAME = "TR-API-Samples";
+	
+	$( document ).ready(function() {
+		$msg = $("#log");
+		log("Tool initialization complete");
+	});
+
+	var log = function(message, color)	{
+		console.log(message);
+		if(color)
+			$msg.append($("<span>", {class: color}).html(message) ).append($("<br/>"));
+		else
+			$msg.append($("<span>").html(message) ).append($("<br/>"));
+		
+		$msg.scrollTop($msg[0].scrollHeight);
+	};
+	
+	var generateName = function()	{
+		log("This button does nothing", "WARN");
+	};
+	
+	//---------------------------------
+	var listRepos = function()	{
+	//---------------------------------
+		var token = $("#authToken").val();
+		
+		if(!token)	{
+			log("Please provide a valid OAuth token", "RED");
+			return;
+		}
+		
+		log("Listing Github repositories for: " + REPO_ORG_NAME); 
+		
+		$.ajax({
+            url: "https://api.github.com/orgs/" + REPO_ORG_NAME + "/repos",
+            type: "GET",
+            headers: {
+                "Authorization": "token " + token
+            },
+            success: function (response) {
+				console.log("Raw response", response);
+				
+				log("Found repositories: ", "BLUE");
+				response.forEach(function(rep) {
+					log("&nbsp;&nbsp;" + rep.name, "BLUE");
+				});
+            },
+            error: function (err) {
+				console.log("Raw error", err);
+				log("Unable to get data from Github", "RED");
+				if(err.responseText)
+					log("Message: " + err.responseText, "RED");
+            }
+        });		
+	};
+	
+	
+	//---------------------------------
+	var createRepo = function()	{
+	//---------------------------------
+		var token = $("#authToken").val();
+		var repoName = $("#repoName").val();
+		
+		if(!token)	{
+			log("Please provide a valid OAuth token", "RED");
+			return;
+		}
+		
+		if(!repoName)	{
+			log("Please provide a valid repository name", "RED");
+			return;
+		}
+		
+		log("Creating Github repository: " + repoName + " in: " + REPO_ORG_NAME); 
+
+		var newRepo = {
+			name: repoName,
+			description: "Created by Platform Services GitHub tool on " + (new Date()).toDateString(),
+			auto_init: true
+		};
+		
+		$.ajax({
+            url: "https://api.github.com/orgs/" + REPO_ORG_NAME + "/repos",
+            type: "POST",
+			contentType: "application/json; charset=utf-8",
+			data: JSON.stringify(newRepo),
+            headers: {
+                "Authorization": "token " + token
+            },
+            success: function (rep) {
+				console.log("Raw response", rep);
+				log("Repository created: ", "BLUE");
+				log("&nbsp;&nbsp;<b>Name:</b>&nbsp;" + rep.name, "BLUE");
+				log("&nbsp;&nbsp;<b>URL:</b>&nbsp;" + rep.html_url, "BLUE");
+				log("&nbsp;&nbsp;<b>Clone: </b>&nbsp;" + rep.clone_url, "BLUE");
+
+				log("To upload project to this repository follow these steps:");
+				log("&nbsp;1. Install Git command line tools");
+				log("&nbsp;2. Initialize Git in project folder: <code>git init</code>");
+				log("&nbsp;3. Add files: <code>git add --all *</code>");
+				log("&nbsp;4. Pull and modify README.md: <code>git pull " + rep.clone_url + "</code>");
+				log("&nbsp;5. Commit files: <code>git commit -a -m \"First Commit\"</code>");
+				log("&nbsp;6. Attach to repo: <code>git remote add origin " + rep.clone_url + "</code>");
+				log("&nbsp;7. Upload: <code>git push -u origin master</code>");
+				
+				log("or", "WARN");
+				
+				log("&nbsp;1. Navigate to <a href='" + rep.html_url + "' target='_blank'>" + repoName + " Repository</a>");
+				log("&nbsp;2. Drag n Drop your files to repository (works best in Chrome)");
+            },
+            error: function (err) {
+				console.log("Raw error", err);
+				log("Unable to create repository in Github", "RED");
+				if(err.responseText)
+					log("Message: " + err.responseText, "RED");
+            }
+        });		
+	};
+	
+	
+	//---------------------------------
+	var deleteRepo = function()	{
+	//---------------------------------
+		var token = $("#authToken").val();
+		var repoName = $("#repoName").val();
+		
+		if(!token)	{
+			log("Please provide a valid OAuth token", "RED");
+			return;
+		}
+		
+		if(!repoName)	{
+			log("Please provide a valid repository name", "RED");
+			return;
+		}
+		
+		log("Deleting Github repository: " + repoName + " from: " + REPO_ORG_NAME); 
+
+		$.ajax({
+            url: "https://api.github.com/repos/" + REPO_ORG_NAME + "/" + repoName,
+            type: "DELETE",
+            headers: {
+                "Authorization": "token " + token
+            },
+            success: function (rep) {
+				console.log("Raw response", rep);
+				log("Repository deleted", "BLUE");
+            },
+            error: function (err) {
+				console.log("Raw error", err);
+				log("Unable to delete repository in Github", "RED");
+				if(err.responseText)
+					log("Message: " + err.responseText, "RED");
+            }
+        });		
+	};
+	
+	
+</script>
+
 </body>
 </html>
