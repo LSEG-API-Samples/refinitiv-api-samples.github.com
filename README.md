@@ -1,2 +1,2 @@
-# tr-api-samples.github.com
+# Refinitiv-API-Samples.github.com
 Pages site
